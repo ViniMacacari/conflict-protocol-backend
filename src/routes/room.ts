@@ -2,12 +2,14 @@ import { Router } from 'express'
 
 import { NewRoomController } from '../controllers/new-room'
 import { CloseRoomController } from '../controllers/close-room'
+import { RoomCreatorController } from '../controllers/room-creator'
 
 export class RoomRouter {
     public router: Router
 
     private newRoom: NewRoomController = new NewRoomController()
     private closeRoom: CloseRoomController = new CloseRoomController()
+    private roomCreator: RoomCreatorController = new RoomCreatorController()
 
     constructor() {
         this.router = Router()
@@ -17,5 +19,6 @@ export class RoomRouter {
     private registerRoutes(): void {
         this.router.post('/new', (req, res) => this.newRoom.new(req, res))
         this.router.post('/close', (req, res) => this.closeRoom.new(req, res))
+        this.router.post('/validate', (req, res) => this.roomCreator.validate(req, res))
     }
 }
