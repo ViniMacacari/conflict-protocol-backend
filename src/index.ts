@@ -25,7 +25,7 @@ class Servidor {
     private middlewares(): void {
         const limiter = rateLimit({
             windowMs: 1 * 60 * 1000,
-            max: 30,
+            max: 500,
             keyGenerator: (req: any) => {
                 return req.ip
             },
