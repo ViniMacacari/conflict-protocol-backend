@@ -1,10 +1,10 @@
 import express, { Application } from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
-import path from 'path'
 import rateLimit from 'express-rate-limit'
 
 import { RoomRouter } from './routes/room.js'
+import { UsersRouter } from './routes/users.js'
 
 dotenv.config()
 
@@ -13,6 +13,7 @@ class Servidor {
     private porta: number
 
     private room: RoomRouter = new RoomRouter()
+    private users: UsersRouter = new UsersRouter()
 
     constructor() {
         this.app = express()
@@ -33,8 +34,6 @@ class Servidor {
 
         this.app.use(limiter)
         this.app.use(express.json())
-        this.app.use(express.static(path.join(__dirname, 'public')))
-        this.app.use('/img', express.static(path.join(__dirname, 'public', 'img')))
         this.app.use(cors())
     }
 
@@ -42,6 +41,7 @@ class Servidor {
         this.app.get('/', (_req, res) => { res.json({ message: 'API On' }) })
 
         this.app.use('/room', this.room.router)
+        this.app.use('/users', this.users.router)
     }
 
     public iniciar(): void {
