@@ -1,8 +1,8 @@
 import { Router } from 'express'
 
-import { NewRoomController } from '../controllers/new-room'
-import { CloseRoomController } from '../controllers/close-room'
-import { RoomCreatorController } from '../controllers/room-creator'
+import { NewRoomController } from '../controllers/new-room.js'
+import { CloseRoomController } from '../controllers/close-room.js'
+import { RoomCreatorController } from '../controllers/room-creator.js'
 
 export class RoomRouter {
     public router: Router
