@@ -1,14 +1,14 @@
 import { Request, Response } from "express"
-import { CloseRoomService } from "../services/close-room.js"
+import { ExitRoomService } from "../services/exit-room.js"
 
-export class CloseRoomController {
-    private service: CloseRoomService = new CloseRoomService()
+export class ExitRoomController {
+    private service: ExitRoomService = new ExitRoomService()
 
     async new(req: Request, res: Response): Promise<any> {
         try {
             const { roomCode, userId } = req.body
 
-            await this.service.closeRoom({ roomCode, userId })
+            await this.service.exit({ roomCode, userId })
 
             return res.status(201).json({ sucess: true })
         } catch (err: any) {

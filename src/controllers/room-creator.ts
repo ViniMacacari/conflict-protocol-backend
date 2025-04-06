@@ -1,4 +1,4 @@
-import { RoomCreatorService } from "../services/room-creator"
+import { RoomCreatorService } from "../services/room-creator.js"
 import { Request, Response } from "express"
 
 export class RoomCreatorController {

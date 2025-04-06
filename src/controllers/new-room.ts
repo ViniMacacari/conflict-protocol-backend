@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { NewRoomService } from "../services/new-room"
+import { NewRoomService } from "../services/new-room.js"
 
 export class NewRoomController {
     private service: NewRoomService = new NewRoomService()

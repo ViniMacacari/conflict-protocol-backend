@@ -1,4 +1,4 @@
-import { ValidateVisitorService } from "../services/validate-visitor"
+import { ValidateVisitorService } from "../services/validate-visitor.js"
 import { Request, Response } from "express"
 
 export class ValidateVisitorController {
