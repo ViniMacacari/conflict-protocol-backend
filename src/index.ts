@@ -2,15 +2,20 @@ import express, { Application } from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
+import cron from 'node-cron'
 
 import { RoomRouter } from './routes/room.js'
 import { UsersRouter } from './routes/users.js'
+
+import { InactivateRooms } from './services/inactivate-room.js'
 
 dotenv.config()
 
 class Servidor {
     private app: Application
     private porta: number
+
+    private cronInactivate: InactivateRooms = new InactivateRooms()
 
     private room: RoomRouter = new RoomRouter()
     private users: UsersRouter = new UsersRouter()
@@ -46,7 +51,15 @@ class Servidor {
 
     public iniciar(): void {
         this.app.listen(this.porta, () => {
-            console.log(`Servidor iniciado na porta ${this.porta}`)
+            console.log('Server running at' + this.porta)
+            
+            cron.schedule('*/5 * * * *', async () => {
+                try {
+                  await this.cronInactivate.inactivate()
+                } catch (e) {
+                  console.error('Erro ao inativar salas:', e)
+                }
+              })              
         })
     }
 }
