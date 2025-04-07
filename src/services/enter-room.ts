@@ -12,8 +12,6 @@ export class EnterRoomService {
         try {
             const { roomCode, user } = data
 
-            console.log(data)
-
             if (!roomCode || !user) {
                 throw new Error('Todos os campos são obrigatórios.')
             }

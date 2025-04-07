@@ -1,8 +1,10 @@
 import { Request, Response } from "express"
 import { UsersRoomsService } from "../services/users-rooms.js"
+import { SortPlayersService } from "../services/sort-players.js"
 
 export class UsersRoomsController {
     private service: UsersRoomsService = new UsersRoomsService()
+    private sortService: SortPlayersService = new SortPlayersService()
 
     async get(req: Request, res: Response): Promise<any> {
         try {
@@ -55,6 +57,12 @@ export class UsersRoomsController {
                     }
 
                     if (data.length >= 4) {
+                        try {
+                            await this.sortService.sort(Number(roomCode))
+                        } catch (err) {
+                            console.error('Erro ao sortear ordem ou iniciar turno:', err)
+                        }
+
                         res.write('event: close\ndata: done\n\n')
                         res.end()
                         break

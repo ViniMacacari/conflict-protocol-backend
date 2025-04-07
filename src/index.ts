@@ -9,8 +9,6 @@ import { UsersRouter } from './routes/users.js'
 
 import { InactivateRooms } from './services/inactivate-room.js'
 
-import { NormalizeLowercaseMiddleware } from './middlewares/normalize-lowercase.js'
-
 dotenv.config()
 
 class Servidor {
@@ -41,7 +39,6 @@ class Servidor {
 
         this.app.use(limiter)
         this.app.use(express.json())
-        this.app.use(NormalizeLowercaseMiddleware.use)
         this.app.use(cors())
     }
 
@@ -54,7 +51,7 @@ class Servidor {
 
     public iniciar(): void {
         this.app.listen(this.porta, () => {
-            console.log('Server running at' + this.porta)
+            console.log('Server running at ' + this.porta)
 
             cron.schedule('*/5 * * * *', async () => {
                 try {
