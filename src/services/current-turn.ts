@@ -9,10 +9,13 @@ export class TurnManagerService {
                 st.id_jogador_atual,
                 u.nome AS nome_jogador,
                 EXTRACT(EPOCH FROM (st.fim_turno - NOW()))::int AS tempo_restante,
-                st.numero_turno
+                st.numero_turno,
+                p.nome AS personagem
             FROM salas_turnos st
             JOIN salas s ON s.id = st.id_sala
             JOIN usuarios u ON u.id = st.id_jogador_atual
+            JOIN personagens_usuarios pu ON pu.id_usuario = u.id AND pu.id_sala = s.id AND pu.ativo IS TRUE
+            JOIN personagens p ON p.id = pu.id_personagem
             WHERE s.codigo = $1 AND st.status_turno = 'em_andamento'
             LIMIT 1;
         `
