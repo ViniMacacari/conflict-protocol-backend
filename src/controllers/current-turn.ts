@@ -1,10 +1,17 @@
 import { Request, Response } from 'express'
 import { TurnManagerService } from '../services/current-turn.js'
 
+type TurnCache = {
+    data: any,
+    lastUpdate: number
+}
+
+const turnCache: Map<string, TurnCache> = new Map()
+
 export class CurrentTurnController {
     private service: TurnManagerService = new TurnManagerService()
 
-    async stream(req: Request, res: Response): Promise<any> {
+    async stream(req: Request, res: Response): Promise<void> {
         const { roomCode } = req.params
         const userId = Number(req.query.userId)
 
@@ -17,45 +24,54 @@ export class CurrentTurnController {
         res.setHeader('Cache-Control', 'no-cache')
         res.setHeader('Connection', 'keep-alive')
 
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+        let active = true
 
-        const loop = async () => {
-            let lastTick = Date.now()
+        req.on('close', () => {
+            active = false
+            res.end()
+        })
 
-            while (true) {
-                if (res.finished) break
+        const sendUpdate = async () => {
+            if (!active) return
 
+            try {
+                const cached = turnCache.get(roomCode)
                 const now = Date.now()
-                lastTick = now
 
-                try {
-                    let turnInfo = await this.service.getTurnInfo(Number(roomCode))
+                let turnInfo = cached?.data
+                const needsRefresh = !cached || (now - cached.lastUpdate > 1000)
 
-                    if (!turnInfo) {
+                if (needsRefresh) {
+                    let info = await this.service.getTurnInfo(Number(roomCode))
+
+                    if (!info || info.tempo_restante <= 0) {
                         await this.service.startTurn(Number(roomCode), userId)
-                        turnInfo = await this.service.getTurnInfo(Number(roomCode))
-                    } else {
-                        if (turnInfo.tempo_restante <= 0) {
-                            await this.service.startTurn(Number(roomCode), userId)
-                            turnInfo = await this.service.getTurnInfo(Number(roomCode))
-                        }
+                        info = await this.service.getTurnInfo(Number(roomCode))
                     }
 
-                    if (turnInfo) {
-                        res.write(`data: ${JSON.stringify(turnInfo)}\n\n`)
-                    }
-                } catch (err) {
-                    console.error(err)
-                    res.write('event: error\ndata: Erro interno\n\n')
-                    res.end()
-                    break
+                    turnInfo = info
+                    turnCache.set(roomCode, { data: info, lastUpdate: now })
                 }
 
-                const wait = Math.max(0, 1000 - (Date.now() - lastTick))
-                await delay(wait)
+                if (turnInfo) {
+                    res.write(`data: ${JSON.stringify(turnInfo)}\n\n`)
+                }
+            } catch (err) {
+                console.error(err)
+                res.write('event: error\ndata: Erro interno\n\n')
+                res.end()
+                active = false
             }
         }
 
-        loop()
+        const interval = setInterval(() => {
+            if (!active) {
+                clearInterval(interval)
+                return
+            }
+            sendUpdate()
+        }, 1000)
+
+        sendUpdate()
     }
 }
