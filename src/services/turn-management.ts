@@ -8,7 +8,7 @@ export class TurnService {
             throw new Error('ID da sala é obrigatório.')
         }
 
-        const sql = 'CALL iniciar_turno($1)'
+        const sql = 'CALL passar_turno($1)'
         await this.db.exec(sql, [roomId])
     }
 
