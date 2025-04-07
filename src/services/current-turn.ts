@@ -8,7 +8,7 @@ export class TurnManagerService {
             SELECT
                 st.id_jogador_atual,
                 u.nome AS nome_jogador,
-                EXTRACT(EPOCH FROM (st.fim_turno - NOW()))::int AS tempo_restante,
+                CEIL(EXTRACT(EPOCH FROM (st.fim_turno - NOW())))::int AS tempo_restante,
                 st.numero_turno,
                 p.nome AS personagem
             FROM salas_turnos st
@@ -23,26 +23,16 @@ export class TurnManagerService {
         return result[0] || null
     }
 
-    async nextTurn(roomCode: number): Promise<void> {
-        const query = `CALL iniciar_turno($1);`
-        await this.db.exec(query, [roomCode])
+    async isRoomOwner(roomCode: number, userId: number): Promise<boolean> {
+        const query = `SELECT criador FROM salas WHERE codigo = $1 AND ativo IS TRUE`
+        const result = await this.db.exec(query, [roomCode])
+        return result?.[0]?.criador == userId
     }
 
-    async handleTurn(roomCode: number): Promise<any> {
-        const info = await this.getTurnInfo(roomCode)
+    async startTurn(roomCode: number, userId: number): Promise<void> {
+        const isOwner = await this.isRoomOwner(roomCode, userId)
+        if (!isOwner) return
 
-        if (!info) return null
-
-        if (info.tempo_restante <= 0) {
-            await this.nextTurn(roomCode)
-            return await this.getTurnInfo(roomCode)
-        }
-
-        return info
-    }
-
-    async startTurn(roomCode: number): Promise<void> {
-        const sql = `CALL iniciar_turno($1)`
-        await this.db.exec(sql, [roomCode])
+        await this.db.exec(`CALL iniciar_turno($1, $2)`, [roomCode, userId])
     }
 }

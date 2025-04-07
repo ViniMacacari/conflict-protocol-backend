@@ -6,6 +6,7 @@ export class CurrentTurnController {
 
     async stream(req: Request, res: Response): Promise<any> {
         const { roomCode } = req.params
+        const userId = Number(req.query.userId)
 
         if (!roomCode) {
             res.status(400).json({ erro: 'Código da sala não informado' })
@@ -19,16 +20,23 @@ export class CurrentTurnController {
         const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
         const loop = async () => {
+            let lastTick = Date.now()
+
             while (true) {
+                if (res.finished) break
+
+                const now = Date.now()
+                lastTick = now
+
                 try {
                     let turnInfo = await this.service.getTurnInfo(Number(roomCode))
 
                     if (!turnInfo) {
-                        await this.service.startTurn(Number(roomCode))
+                        await this.service.startTurn(Number(roomCode), userId)
                         turnInfo = await this.service.getTurnInfo(Number(roomCode))
                     } else {
                         if (turnInfo.tempo_restante <= 0) {
-                            await this.service.startTurn(Number(roomCode))
+                            await this.service.startTurn(Number(roomCode), userId)
                             turnInfo = await this.service.getTurnInfo(Number(roomCode))
                         }
                     }
@@ -43,7 +51,8 @@ export class CurrentTurnController {
                     break
                 }
 
-                await delay(1000)
+                const wait = Math.max(0, 1000 - (Date.now() - lastTick))
+                await delay(wait)
             }
         }
 
