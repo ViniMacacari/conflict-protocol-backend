@@ -1,6 +1,5 @@
 import express, { Application } from 'express'
 import dotenv from 'dotenv'
-import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 import cron from 'node-cron'
 
@@ -41,7 +40,18 @@ class Servidor {
 
         this.app.use(limiter)
         this.app.use(express.json())
-        this.app.use(cors())
+        this.app.use(function (req: express.Request, res: express.Response, next: express.NextFunction): void {
+            res.header('Access-Control-Allow-Origin', '*')
+            res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+
+            if (req.method === 'OPTIONS') {
+                res.sendStatus(200)
+                return
+            }
+
+            next()
+        })
     }
 
     private rotas(): void {
