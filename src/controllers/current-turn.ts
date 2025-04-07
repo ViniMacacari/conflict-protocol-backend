@@ -24,16 +24,12 @@ export class CurrentTurnController {
         res.setHeader('Cache-Control', 'no-cache')
         res.setHeader('Connection', 'keep-alive')
 
-        let active = true
-
         req.on('close', () => {
-            active = false
+            clearInterval(interval)
             res.end()
         })
 
         const sendUpdate = async () => {
-            if (!active) return
-
             try {
                 const cached = turnCache.get(roomCode)
                 const now = Date.now()
@@ -59,19 +55,11 @@ export class CurrentTurnController {
             } catch (err) {
                 console.error(err)
                 res.write('event: error\ndata: Erro interno\n\n')
+                clearInterval(interval)
                 res.end()
-                active = false
             }
         }
 
-        const interval = setInterval(() => {
-            if (!active) {
-                clearInterval(interval)
-                return
-            }
-            sendUpdate()
-        }, 1000)
-
-        sendUpdate()
+        const interval = setInterval(sendUpdate, 1000)
     }
 }

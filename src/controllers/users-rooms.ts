@@ -32,13 +32,20 @@ export class UsersRoomsController {
         res.setHeader('Content-Type', 'text/event-stream')
         res.setHeader('Cache-Control', 'no-cache')
         res.setHeader('Connection', 'keep-alive')
+        res.flushHeaders?.()
+
+        let active = true
+        req.on('close', () => {
+            active = false
+            res.end()
+        })
 
         const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         let lastCount = 0
         let tentativas = 0
 
         const sendUpdates = async () => {
-            while (true) {
+            while (active) {
                 const data = await this.service.get(Number(roomCode))
 
                 if (!data || data.length === 0) {
@@ -51,6 +58,7 @@ export class UsersRoomsController {
                     }
                 } else {
                     tentativas = 0
+
                     if (data.length !== lastCount) {
                         lastCount = data.length
                         res.write(`data: ${JSON.stringify(data)}\n\n`)
