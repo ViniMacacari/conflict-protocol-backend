@@ -21,8 +21,6 @@ export class RoomCreatorController {
                 roomCode
             )
 
-            console.log(result)
-
             return res.status(200).json({ result: !!(result?.length) })
         } catch (err: any) {
             console.error(err)

@@ -6,6 +6,7 @@ import cron from 'node-cron'
 
 import { RoomRouter } from './routes/room.js'
 import { UsersRouter } from './routes/users.js'
+import { TurnRouter } from './routes/turn.js'
 
 import { InactivateRooms } from './services/inactivate-room.js'
 
@@ -19,6 +20,7 @@ class Servidor {
 
     private room: RoomRouter = new RoomRouter()
     private users: UsersRouter = new UsersRouter()
+    private turn: TurnRouter = new TurnRouter()
 
     constructor() {
         this.app = express()
@@ -47,6 +49,7 @@ class Servidor {
 
         this.app.use('/room', this.room.router)
         this.app.use('/users', this.users.router)
+        this.app.use('/turn', this.turn.router)
     }
 
     public iniciar(): void {
