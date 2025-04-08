@@ -35,7 +35,7 @@ export class CurrentTurnController {
                 const now = Date.now()
 
                 let turnInfo = cached?.data
-                const needsRefresh = !cached || (now - cached.lastUpdate > 1000)
+                const needsRefresh = !cached || (now - cached.lastUpdate > 3000)
 
                 if (needsRefresh) {
                     let info = await this.service.getTurnInfo(Number(roomCode))
@@ -60,6 +60,6 @@ export class CurrentTurnController {
             }
         }
 
-        const interval = setInterval(sendUpdate, 1000)
+        const interval = setInterval(sendUpdate, 2000)
     }
 }

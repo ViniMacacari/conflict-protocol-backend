@@ -31,10 +31,9 @@ class Servidor {
     private middlewares(): void {
         const limiter = rateLimit({
             windowMs: 1 * 60 * 1000,
-            max: 500,
-            keyGenerator: (req: any) => {
-                return req.ip
-            },
+            max: 2500,
+            keyGenerator: (req: any) => req.ip,
+            skip: (req) => req.headers.accept === 'text/event-stream',
             message: { error: 'Muitas requisições. Tente novamente mais tarde.' }
         })
 
@@ -50,6 +49,16 @@ class Servidor {
                 return
             }
 
+            next()
+        })
+        this.app.use((req, _res, next) => {
+            console.log(`[${new Date().toISOString()}] ➡️ ${req.method} ${req.url}`)
+            next()
+        })
+        this.app.use((req, res, next) => {
+            res.on('finish', () => {
+                console.log(`[${new Date().toISOString()}] ✅ ${req.method} ${req.url} finalizado com ${res.statusCode}`)
+            })
             next()
         })
     }

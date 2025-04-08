@@ -77,7 +77,7 @@ export class UsersRoomsController {
                     }
                 }
 
-                await delay(1000)
+                await delay(2000)
             }
         }
 
