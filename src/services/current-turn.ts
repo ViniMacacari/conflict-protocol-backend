@@ -14,7 +14,8 @@ export class TurnManagerService {
                     CEIL(EXTRACT(EPOCH FROM (st.fim_turno - NOW())))::int AS tempo_restante,
                     st.numero_turno,
                     p.nome AS personagem,
-                    pu.vida
+                    pu.vida,
+                    p.vida as vida_maxima
                 FROM salas_turnos st
                 JOIN salas s ON s.id = st.id_sala
                 JOIN usuarios u ON u.id = st.id_jogador_atual
