@@ -6,6 +6,7 @@ import { RoomCreatorController } from '../controllers/room-creator.js'
 import { EnterRoomController } from '../controllers/enter-room.js'
 import { ExitRoomController } from '../controllers/exit-room.js'
 import { AttackController } from '../controllers/attack.js'
+import { HealController } from '../controllers/heal.js'
 
 export class RoomRouter {
     public router: Router
@@ -16,6 +17,7 @@ export class RoomRouter {
     private enterRoom: EnterRoomController = new EnterRoomController()
     private exitRoom: ExitRoomController = new ExitRoomController()
     private attackController: AttackController = new AttackController()
+    private healController: HealController = new HealController()
 
     constructor() {
         this.router = Router()
@@ -29,5 +31,6 @@ export class RoomRouter {
         this.router.post('/validate', (req, res) => this.roomCreator.validate(req, res))
         this.router.post('/enter', (req, res) => this.enterRoom.enter(req, res))
         this.router.post('/attack', (req, res) => this.attackController.attack(req, res))
+        this.router.post('/heal', (req, res) => this.healController.heal(req, res))
     }
 }
