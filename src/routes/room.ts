@@ -5,6 +5,7 @@ import { CloseRoomController } from '../controllers/close-room.js'
 import { RoomCreatorController } from '../controllers/room-creator.js'
 import { EnterRoomController } from '../controllers/enter-room.js'
 import { ExitRoomController } from '../controllers/exit-room.js'
+import { AttackController } from '../controllers/attack.js'
 
 export class RoomRouter {
     public router: Router
@@ -14,6 +15,7 @@ export class RoomRouter {
     private roomCreator: RoomCreatorController = new RoomCreatorController()
     private enterRoom: EnterRoomController = new EnterRoomController()
     private exitRoom: ExitRoomController = new ExitRoomController()
+    private attackController: AttackController = new AttackController()
 
     constructor() {
         this.router = Router()
@@ -26,5 +28,6 @@ export class RoomRouter {
         this.router.post('/exit', (req, res) => this.exitRoom.new(req, res))
         this.router.post('/validate', (req, res) => this.roomCreator.validate(req, res))
         this.router.post('/enter', (req, res) => this.enterRoom.enter(req, res))
+        this.router.post('/attack', (req, res) => this.attackController.attack(req, res))
     }
 }
