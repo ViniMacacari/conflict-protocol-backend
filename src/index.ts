@@ -31,7 +31,7 @@ class Servidor {
     private middlewares(): void {
         const limiter = rateLimit({
             windowMs: 1 * 60 * 1000,
-            max: 2500,
+            max: 2000,
             keyGenerator: (req: any) => req.ip,
             skip: (req) => req.headers.accept === 'text/event-stream',
             message: { error: 'Muitas requisições. Tente novamente mais tarde.' }
